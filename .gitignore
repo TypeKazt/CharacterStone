@@ -1,0 +1,6 @@
+*.o
+*.hex
+*CMakeFiles*
+CMakeCache.txt
+cmake_install.cmake
+*.elf
