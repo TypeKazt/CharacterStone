@@ -29,8 +29,21 @@ extern void setMessageSizeInBytes(uint8_t _size);
  *  _data: char* -> buffer populated by function
  * 
 *****************************************************/
-extern void receiveMessage(char* _data);
+extern inline void receiveMessage(uint8_t* p_data);
+
+extern uint8_t _bitCount;
 
 #define getClksElapsed(period_counts, counts) (counts/period_counts)
+#define getByteIndex(bitCount) bitCount/8
+#define getBitIndex(bitCount) bitCount%8
+
+#ifndef PERIOD_COUNTS
+#define PERIOD_COUNTS 9 // default for IR_HZ of 1786Hz (NEC standard)
+#endif
+#ifndef TRANSACTION_LENGTH
+#define TRANSACTION_LENGTH 64
+#endif
+
+#define transactionFinished() _bitCount == TRANSACTION_LENGTH
 
 #endif

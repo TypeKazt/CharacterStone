@@ -1,25 +1,34 @@
-#include <avr/iom2560.h>
 #include <avr/interrupt.h>
 
 #include "Slave.h"
 
-#ifndef PERIOD_COUNTS
-#define PERIOD_COUNTS 9 // default for IR_HZ of 1786Hz (NEC standard)
-#endif
+uint8_t* _data;
+uint8_t _bitCount = 0;
 
-char* _data;
-
+void setMessageSizeInBytes(uint8_t _size)
+{
+	if(_data != 0)
+	{
+		free(_data);
+	}
+	_data = (uint8_t*)malloc(sizeof(uint8_t)*_size);
+}
 
 void configureTimer()
 {
     
 }
 
+void receiveMessage(uint8_t* p_data)
+{
+	p_data = _data;	
+}
+
 /*****************************************************
  *  Description:
  *      Interrupt routine for a pin state change.
- *      Used as a hacked up PLL for decoding Manchester
- *      encoding from an infrared remote.
+ *      Used as a hacked up PLL for decoding 
+ *      NEC from an infrared remote.
  * 
  *  Methodology:
  *      For each Pin state change the timer/counter
@@ -39,13 +48,16 @@ ISR(INT0_vect)
 		case PERIOD_COUNTS-1: // '0' bit
 		case PERIOD_COUNTS:
 		case PERIOD_COUNTS+1:
-			
+			_data[getByteIndex(_bitCount)] <<= 1;
+			_bitCount++;
 			break;	
 		case PERIOD_COUNTS*3-1: // '1' bit
 		case PERIOD_COUNTS*3:
 		case PERIOD_COUNTS*3+1:
+			uint8_t byteIndex = getByteIndex(_bitCount);
+			_data[byteIndex] <<= 1;
+			_data[byteIndex]+= 1;
+			_bitCount++;
 			break;
-		
 	}
-
 }
