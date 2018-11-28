@@ -1,9 +1,9 @@
-#include <avr/iom2560.h>
-#include <avr/io.h>
-#include <avr/util/delay.h>
-#include <avr/interrupt.h>
-
+#include "stdafx.h"
 #include "Slave.h"
+
+#include <avr/io.h>
+#include <util/delay.h>
+#include <avr/interrupt.h>
 
 #define IR_PIN 0
 
@@ -15,18 +15,20 @@
 	}\
 	else\
 	{\
-		PORTB &= (0xFF ^ _BV(TRANSMIT_PIN));\
+		PORTB &= ~(_BV(TRANSMIT_PIN));\
 	}\
 
 void replicateSignal()
 {
-	char* data;
-	receiveMessage(data);
+	uint8_t* data;
+	data = receiveMessage(data);
 	for(uint8_t byteIndex = 0; byteIndex < (TRANSACTION_LENGTH-1)/8 + 1; byteIndex++)
 	{
 		for(uint8_t bitIndex = 0; bitIndex < 8; bitIndex++)
 		{
-			TRANSMIT(data[byteIndex])
+			_delay_ms(MAIN_LOOP_TIME_MS);
+			TRANSMIT((data[byteIndex]&(1<<bitIndex)));
+			_delay_ms(MAIN_LOOP_TIME_MS);
 		}
 	}
 }
@@ -42,15 +44,23 @@ int main()
 
 	EIMSK |= 1 << INT0; // enable external interrupt 0
 	EICRA |= 2 << INT0; // configure external interrupt 0 for falling edge
+
+	sei(); // enable global interrupts
+
+	setMessageSizeInBytes(1+((uint8_t)TRANSACTION_LENGTH-1)/8);
 	
 	//switch state every second
 	while(1)
 	{
-		PORTB ^= _BV(PORTB7);
-		_delay_ms(100);
+		/*PORTB ^= _BV(PORTB7);*/
+		//_delay_ms(MAIN_LOOP_TIME_MS*10);
+		#ifdef DEBUG
+		replicateSignal();
+		#else
 		if(transactionFinished())
 		{
 			replicateSignal();
 		}
+		#endif
 	}
 }

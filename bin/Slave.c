@@ -1,27 +1,38 @@
+#include "stdafx.h"
+
 #include <avr/interrupt.h>
+#include <avr/io.h>
+#include <stdlib.h>
+#include <util/delay.h>
 
 #include "Slave.h"
 
-uint8_t* _data;
+uint8_t _data[1+((uint8_t)TRANSACTION_LENGTH-1)/8];
 uint8_t _bitCount = 0;
 
 void setMessageSizeInBytes(uint8_t _size)
 {
-	if(_data != 0)
+/*	if(_data != 0)
 	{
 		free(_data);
 	}
-	_data = (uint8_t*)malloc(sizeof(uint8_t)*_size);
+	_data = (uint8_t*)malloc(sizeof(uint8_t)*_size);*/
 }
 
 void configureTimer()
 {
-    
+	TCCR0B = 5; // prescale clk by 1024
 }
 
-void receiveMessage(uint8_t* p_data)
+uint8_t* receiveMessage()
 {
-	p_data = _data;	
+#ifdef DEBUG
+	for(int i = 0; i < 1+((uint8_t)TRANSACTION_LENGTH-1)/8; ++i)
+	{
+		_data[i] = 0xaa;
+	}
+#endif
+	return _data;
 }
 
 /*****************************************************
@@ -41,7 +52,9 @@ void receiveMessage(uint8_t* p_data)
 *****************************************************/
 ISR(INT0_vect)
 {
+	//__disable_interrupts();
 	uint8_t timerCounts = 0;
+	uint8_t byteIndex;
 	timerCounts = getClksElapsed(PERIOD_COUNTS, timerCounts);
 	switch(timerCounts)
 	{
@@ -54,10 +67,13 @@ ISR(INT0_vect)
 		case PERIOD_COUNTS*3-1: // '1' bit
 		case PERIOD_COUNTS*3:
 		case PERIOD_COUNTS*3+1:
-			uint8_t byteIndex = getByteIndex(_bitCount);
+			byteIndex = getByteIndex(_bitCount);
 			_data[byteIndex] <<= 1;
 			_data[byteIndex]+= 1;
 			_bitCount++;
 			break;
+		default:
+			reti();
 	}
+	reti();
 }

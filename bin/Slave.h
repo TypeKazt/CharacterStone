@@ -2,6 +2,8 @@
 #define __CHARACTER_STONE__
 
 
+#include <inttypes.h>
+
 //== Timer configuration
 
 extern void configureTimer();
@@ -29,7 +31,7 @@ extern void setMessageSizeInBytes(uint8_t _size);
  *  _data: char* -> buffer populated by function
  * 
 *****************************************************/
-extern inline void receiveMessage(uint8_t* p_data);
+extern uint8_t* receiveMessage();
 
 extern uint8_t _bitCount;
 
@@ -40,10 +42,15 @@ extern uint8_t _bitCount;
 #ifndef PERIOD_COUNTS
 #define PERIOD_COUNTS 9 // default for IR_HZ of 1786Hz (NEC standard)
 #endif
+#ifndef IR_HZ
+#define IR_HZ 1786
+#endif
 #ifndef TRANSACTION_LENGTH
 #define TRANSACTION_LENGTH 64
 #endif
 
 #define transactionFinished() _bitCount == TRANSACTION_LENGTH
+
+extern uint8_t _data[1+((uint8_t)TRANSACTION_LENGTH-1)/8];
 
 #endif
