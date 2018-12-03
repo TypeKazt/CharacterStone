@@ -9,6 +9,7 @@
 
 uint8_t _data[1+((uint8_t)TRANSACTION_LENGTH-1)/8];
 uint8_t _bitCount = 0;
+uint8_t _firstBit = 1;
 
 void setMessageSizeInBytes(uint8_t _size)
 {
@@ -21,12 +22,15 @@ void setMessageSizeInBytes(uint8_t _size)
 
 void configureTimer()
 {
-	TCCR0B = 5; // prescale clk by 1024
+	// CLK I/0 on the mega is ~= 8MHz
+
+	TCCR0B = 1; // prescale clk for counter 0 by 1
+	// TIMSK0 = 1; // set overflow flag for counter 0, use for testing
 }
 
 uint8_t* receiveMessage()
 {
-#ifdef DEBUG
+#if DEBUG == 1
 	for(int i = 0; i < 1+((uint8_t)TRANSACTION_LENGTH-1)/8; ++i)
 	{
 		_data[i] = 0xaa;
@@ -53,27 +57,41 @@ uint8_t* receiveMessage()
 ISR(INT0_vect)
 {
 	//__disable_interrupts();
-	uint8_t timerCounts = 0;
-	uint8_t byteIndex;
-	timerCounts = getClksElapsed(PERIOD_COUNTS, timerCounts);
-	switch(timerCounts)
+	if(_firstBit == 0)
 	{
-		case PERIOD_COUNTS-1: // '0' bit
-		case PERIOD_COUNTS:
-		case PERIOD_COUNTS+1:
-			_data[getByteIndex(_bitCount)] <<= 1;
-			_bitCount++;
-			break;	
-		case PERIOD_COUNTS*3-1: // '1' bit
-		case PERIOD_COUNTS*3:
-		case PERIOD_COUNTS*3+1:
-			byteIndex = getByteIndex(_bitCount);
-			_data[byteIndex] <<= 1;
-			_data[byteIndex]+= 1;
-			_bitCount++;
-			break;
-		default:
-			reti();
+		uint8_t timerCounts = 0;
+		uint8_t byteIndex;
+		timerCounts = getClksElapsed(PERIOD_COUNTS, timerCounts);
+		switch(timerCounts)
+		{
+			case PERIOD_COUNTS-1: // '0' bit
+			case PERIOD_COUNTS:
+			case PERIOD_COUNTS+1:
+				_data[getByteIndex(_bitCount)] <<= 1;
+				_bitCount++;
+				break;	
+			case PERIOD_COUNTS*3-1: // '1' bit
+			case PERIOD_COUNTS*3:
+			case PERIOD_COUNTS*3+1:
+				byteIndex = getByteIndex(_bitCount);
+				_data[byteIndex] <<= 1;
+				_data[byteIndex]+= 1;
+				_bitCount++;
+				break;
+			default:
+				reti();
+		}
+	}
+	else
+	{
+		_firstBit = 0;
 	}
 	reti();
 }
+
+/* test code for measuring frequency of CLK I/O
+ISR(TIMER0_OVF_vect)
+{
+	PORTB ^= _BV(PORTB7);
+}
+*/

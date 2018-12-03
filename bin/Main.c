@@ -48,19 +48,21 @@ int main()
 	sei(); // enable global interrupts
 
 	setMessageSizeInBytes(1+((uint8_t)TRANSACTION_LENGTH-1)/8);
+	configureTimer();
+
 	
 	//switch state every second
 	while(1)
 	{
 		/*PORTB ^= _BV(PORTB7);*/
 		//_delay_ms(MAIN_LOOP_TIME_MS*10);
-		#ifdef DEBUG
+#if DEBUG == 1
 		replicateSignal();
-		#else
+#else
 		if(transactionFinished())
 		{
-			replicateSignal();
+//			replicateSignal();
 		}
-		#endif
+#endif
 	}
 }
