@@ -99,8 +99,6 @@ ISR(INT0_vect)
 				PORTB &= ~(_BV(6));
 #endif
 				break;
-			default:
-				goto EXIT;
 		}
 	}
 	else
