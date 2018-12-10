@@ -6,20 +6,10 @@
 
 //== Timer configuration
 
-extern void configureTimer();
+extern void configureSlave();
  
 
 //== NEC encoding/decoding
-
-/*****************************************************
- * Description:
- *  Number of bytes transferred (including redundancies)
- * 
- * Args:
- *  _size: uint8_t -> size of buffer in bytes
- * 
-*****************************************************/
-extern void setMessageSizeInBytes(uint8_t _size);
 
 /*****************************************************
  * Description:
@@ -33,20 +23,25 @@ extern void setMessageSizeInBytes(uint8_t _size);
 *****************************************************/
 extern uint8_t* receiveMessage();
 
+extern void resetTransactions();
+
 extern uint8_t _bitCount;
 
 #define getClksElapsed(period_counts, counts) (counts/period_counts)
 #define getByteIndex(bitCount) bitCount/8
 #define getBitIndex(bitCount) bitCount%8
 
-#ifndef PERIOD_COUNTS
-#define PERIOD_COUNTS 9 // default for IR_HZ of 1786Hz (NEC standard)
+#ifndef ZERO_BIT_COUNTS
+#define ZERO_BIT_COUNTS 9 // number of counts for 0 bit
 #endif
+#ifndef ONE_BIT_COUNTS
+#define ONE_BIT_COUNTS 18 // number of counts for 1 bit
+#endif 
 #ifndef IR_HZ
 #define IR_HZ 1786
 #endif
 #ifndef TRANSACTION_LENGTH
-#define TRANSACTION_LENGTH 64
+#define TRANSACTION_LENGTH 32
 #endif
 
 #define transactionFinished() _bitCount == TRANSACTION_LENGTH

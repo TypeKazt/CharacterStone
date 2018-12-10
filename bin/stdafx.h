@@ -3,10 +3,10 @@
 #endif 
 
 #ifndef MAIN_LOOP_TIME_MS
-#define MAIN_LOOP_TIME_MS 100
+#define MAIN_LOOP_TIME_MS 50
 #endif
 
 #ifndef DEBUG
-#define DEBUG 0
+#define DEBUG 1
 #endif
 

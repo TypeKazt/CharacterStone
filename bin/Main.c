@@ -26,9 +26,9 @@ void replicateSignal()
 	{
 		for(uint8_t bitIndex = 0; bitIndex < 8; bitIndex++)
 		{
-			_delay_ms(MAIN_LOOP_TIME_MS);
+			_delay_ms(1);
 			TRANSMIT((data[byteIndex]&(1<<bitIndex)));
-			_delay_ms(MAIN_LOOP_TIME_MS);
+			_delay_ms(1);
 		}
 	}
 }
@@ -36,33 +36,18 @@ void replicateSignal()
 // blink led once per second
 int main()
 {
-	//set port as OUTPUT
-	DDRB |= _BV(DDB7);;
-
-	DDRD &= 0xFE; // set first pin to input
-	PORTD &= 0xFE; // enable pull up resistor
-
-	EIMSK |= 1 << INT0; // enable external interrupt 0
-	EICRA |= 2 << INT0; // configure external interrupt 0 for falling edge
-
-	sei(); // enable global interrupts
-
-	setMessageSizeInBytes(1+((uint8_t)TRANSACTION_LENGTH-1)/8);
-	configureTimer();
-
+	configureSlave();
 	
 	//switch state every second
 	while(1)
 	{
-		/*PORTB ^= _BV(PORTB7);*/
-		//_delay_ms(MAIN_LOOP_TIME_MS*10);
-#if DEBUG == 1
-		replicateSignal();
-#else
+		_delay_ms(MAIN_LOOP_TIME_MS);
 		if(transactionFinished())
 		{
-//			replicateSignal();
-		}
+			resetTransactions();
+#if DEBUG == 1
+			replicateSignal();
 #endif
+		}
 	}
 }
