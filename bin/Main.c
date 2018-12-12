@@ -7,7 +7,7 @@
 
 #define IR_PIN 0
 
-#define TRANSMIT_PIN 7
+#define TRANSMIT_PIN 6
 #define TRANSMIT(bit) \
 	if(bit > 0)\
 	{\
@@ -26,9 +26,9 @@ void replicateSignal()
 	{
 		for(uint8_t bitIndex = 0; bitIndex < 8; bitIndex++)
 		{
-			_delay_ms(1);
+			_delay_us(1);
 			TRANSMIT((data[byteIndex]&(1<<bitIndex)));
-			_delay_ms(1);
+			_delay_us(1);
 		}
 	}
 }
@@ -37,16 +37,21 @@ void replicateSignal()
 int main()
 {
 	configureSlave();
+	int bit = 0;
 	
 	//switch state every second
 	while(1)
 	{
-		_delay_ms(MAIN_LOOP_TIME_MS);
+		//_delay_ms(MAIN_LOOP_TIME_MS);
+		//_delay_ms(1);
 		if(transactionFinished())
 		{
 			resetTransactions();
-#if DEBUG == 1
-			replicateSignal();
+#if DEBUG >= 1
+			//replicateSignal();
+			bit = 1;
+			TRANSMIT(bit);
+			bit = 0;
 #endif
 		}
 	}

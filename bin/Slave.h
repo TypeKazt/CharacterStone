@@ -32,16 +32,16 @@ extern uint8_t _bitCount;
 #define getBitIndex(bitCount) bitCount%8
 
 #ifndef ZERO_BIT_COUNTS
-#define ZERO_BIT_COUNTS 9 // number of counts for 0 bit
+#define ZERO_BIT_COUNTS 18 // number of counts for 0 bit (reflecting 877 Hz at a clk of 7812.5 Hz)
 #endif
 #ifndef ONE_BIT_COUNTS
-#define ONE_BIT_COUNTS 18 // number of counts for 1 bit
+#define ONE_BIT_COUNTS 36 // number of counts for 1 bit (reflecting 438 Hz at a clk of 7812.5 Hz)
 #endif 
 #ifndef IR_HZ
 #define IR_HZ 1786
 #endif
 #ifndef TRANSACTION_LENGTH
-#define TRANSACTION_LENGTH 32
+#define TRANSACTION_LENGTH 8
 #endif
 
 #define transactionFinished() _bitCount == TRANSACTION_LENGTH

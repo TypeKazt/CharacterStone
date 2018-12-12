@@ -15,7 +15,7 @@
 uint8_t _data[1+((uint8_t)TRANSACTION_LENGTH-1)/8];
 uint8_t _bitCount = 0;
 
-uint8_t _state = 1; // 2 == awaiting init bit, 1 == awaiting first bit, 0 >= transaction
+uint8_t _state = 2; // 2 == awaiting init bit, 1 == awaiting first bit, 0 >= transaction
 
 
 void configureSlave()
@@ -24,20 +24,19 @@ void configureSlave()
 	// prescale clk for counter 0 by 1024 (7812.5 Hz)
 	// #TODO '5' should be macrofied
 	TCCR0B = 5;
+	TIMSK0 = 1; // set overflow flag for counter 0, use for testing
 
-#if DEBUG == 1
-	DDRB |= _BV(DDB7) | _BV(DDB6) | _BV(DDB5) | _BV(DDB4);;
+#if DEBUG >= 1
+	DDRB |= _BV(DDB7) | _BV(DDB6) | _BV(DDB5) | _BV(DDB4) | _BV(DDB2) | _BV(DDB1);
 #endif
 
-	DDRD &= 0xFE; // set first pin to input
-	PORTD &= 0xFE; // enable pull up resistor
+	DDRD = 0xFD; // set first pin to input
+	PORTD = 0x02; // enable pull up resistor
 
-	EIMSK |= 1 << INT0; // enable external interrupt 0
-	EICRA |= 2 << INT0; // configure external interrupt 0 for falling edge
+	EIMSK |= 1 << INT1; // enable external interrupt 1
+	EICRA |= 2 << 2; // configure external interrupt 1 for falling edge
 
 	sei(); // enable global interrupts
-
-	// TIMSK0 = 1; // set overflow flag for counter 0, use for testing
 }
 
 void resetTransactions()
@@ -68,10 +67,10 @@ uint8_t* receiveMessage()
  * 	On average takes ~= 1.5us to run
  * 
 *****************************************************/
-ISR(INT0_vect)
+ISR(INT1_vect)
 {
 #if DEBUG == 1
-	PORTB |= _BV(4);
+	PORTB ^= _BV(4);
 #endif
 	if(_state <= 0)
 	{
@@ -85,7 +84,7 @@ ISR(INT0_vect)
 				_data[getByteIndex(_bitCount)] <<= 1;
 				_bitCount++;
 #if DEBUG == 1
-					PORTB |= _BV(6);
+					PORTB ^= _BV(5);
 #endif
 				break;	
 			case ONE_BIT_COUNTS-1: // '1' bit
@@ -96,7 +95,7 @@ ISR(INT0_vect)
 				_data[byteIndex]+= 1;
 				_bitCount++;
 #if DEBUG == 1
-				PORTB &= ~(_BV(6));
+				PORTB ^= _BV(5);
 #endif
 				break;
 		}
@@ -108,7 +107,6 @@ ISR(INT0_vect)
 
 EXIT:
 #if DEBUG == 1
-	PORTB ^= _BV(5);
 	PORTB &= ~(_BV(4));
 #endif
 	RESET_COUNTER();
@@ -117,9 +115,5 @@ EXIT:
 
 ISR(TIMER0_OVF_vect)
 {
-	// PORTB ^= _BV(PORTB7); // test code for measuring Clk I/O
 	resetTransactions();
-#if DEBUG == 1
-	PORTB &= ~(_BV(5));
-#endif
 }
