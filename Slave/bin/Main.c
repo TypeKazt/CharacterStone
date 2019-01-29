@@ -8,7 +8,7 @@
 
 #define IR_PIN 0
 
-#define TRANSMIT_PIN 6
+#define LED_PIN 6
 #define CLK_PIN 7
 #define TRANSMIT(bit, pin) \
 	if(bit > 0)\
@@ -28,7 +28,7 @@ void replicateSignal(uint8_t* data)
 		{
 			_delay_ms(1);
 			TRANSMIT(1, CLK_PIN);
-			TRANSMIT((data[byteIndex]&(1<<bitIndex)), TRANSMIT_PIN);
+			TRANSMIT((data[byteIndex]&(1<<bitIndex)), LED_PIN);
 			_delay_ms(1);
 			TRANSMIT(0, CLK_PIN);
 		}
@@ -40,9 +40,9 @@ inline void pingLed()
 	for(int i = 0; i < 5; ++i)
 	{
 		_delay_ms(100);
-		TRANSMIT(1, TRANSMIT_PIN);
+		TRANSMIT(1, LED_PIN);
 		_delay_ms(100);
-		TRANSMIT(0, TRANSMIT_PIN);
+		TRANSMIT(0, LED_PIN);
 	}
 }
 

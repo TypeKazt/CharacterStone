@@ -20,11 +20,12 @@ set(${Arduino_VARIANT} standard)
 #find_package(Arduino REQUIRED COMPONENTS core_arduino)
 
 #message(WARNING "TEST ${Arduino_INCLUDE_DIRS}")
-include_directories("./")
+include_directories("./bin")
+include_directories("/usr/include/avr")
 
-#avr_add_library(Slave Slave.c)
+avr_add_library(Slave ./bin/Slave.c)
 
-avr_add_executable(SlaveMain Main.c)
+avr_add_executable(SlaveMain ./bin/Main.c)
 
-#target_link_libraries(SalveMain.elf core_arduino)
+target_link_libraries(SlaveMain.elf Slave)
 
