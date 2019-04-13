@@ -68,6 +68,13 @@ uint8_t* receiveMessage()
  *      is used to determine data encoded in time slice.
  * 		A switch case is used as a "filter" that allows some
  * 		room for jitter in the encoded data
+ * 
+ * 	Potential Flaws:
+ * 		If an interrupt comes from some IR beam that is 
+ * 		not part of the protocol right before the init bit
+ * 		there is a potential to lose a packet if the time
+ * 		delta between the noise and init bit is less than
+ * 		the amount of time needed to reset states.
  *
  * 	On average takes ~= 1.5us to run
  * 
@@ -86,6 +93,7 @@ ISR(INT1_vect)
 			case ZERO_BIT_COUNTS-1: // '0' bit
 			case ZERO_BIT_COUNTS:
 			case ZERO_BIT_COUNTS+1:
+				RESET_COUNTER();
 				_data[getByteIndex(_bitCount)] <<= 1;
 				_bitCount++;
 #if DEBUG == 1
@@ -95,6 +103,7 @@ ISR(INT1_vect)
 			case ONE_BIT_COUNTS-1: // '1' bit
 			case ONE_BIT_COUNTS:
 			case ONE_BIT_COUNTS+1:
+				RESET_COUNTER();
 				byteIndex = getByteIndex(_bitCount);
 				_data[byteIndex] <<= 1;
 				_data[byteIndex]+= 1;
@@ -114,7 +123,7 @@ EXIT:
 #if DEBUG == 1
 	PORTB &= ~(_BV(4));
 #endif
-	RESET_COUNTER();
+	// RESET_COUNTER(); // temp move to change protocol for better?
 }
 
 ISR(TIMER0_OVF_vect)

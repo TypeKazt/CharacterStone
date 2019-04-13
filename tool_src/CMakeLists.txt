@@ -25,10 +25,10 @@ include_directories("./Master")
 include_directories("./Slave")
 include_directories("/usr/include/avr")
 
-avr_add_library(IR_Decoder./IR_Decoder/IR_Decoder.c)
+avr_add_library(IRDecoder ./IR_Decoder/IR_Decoder.c)
 
 avr_add_executable(SlaveMain ./Slave/Main.c)
 #avr_add_executable(MasterMain ./Master/Main.c)
 
-target_link_libraries(SlaveMain.elf IR_Decoder)
+target_link_libraries(SlaveMain.elf IRDecoder)
 

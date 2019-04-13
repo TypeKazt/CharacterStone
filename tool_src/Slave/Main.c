@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Slave.h"
+#include "IR_Decoder.h"
 #include "MessageCodes.h"
 
 #include <avr/io.h>

@@ -1,5 +1,5 @@
-#ifndef __CHARACTER_STONE__
-#define __CHARACTER_STONE__
+#ifndef __IR_DECODER__
+#define __IR_DECODER__
 
 
 #include <inttypes.h>
