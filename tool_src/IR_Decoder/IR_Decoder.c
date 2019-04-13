@@ -19,7 +19,7 @@ uint8_t _bitCount = 0;
 uint8_t _state = 2; // 2 == awaiting init bit, 1 == awaiting first bit, 0 >= transaction
 
 
-void configureSlave()
+void configureEncoder()
 {
 	// CLK I/0 on the mega is ~= 8MHz
 	// prescale clk for counter 0 by 1024 (7812.5 Hz)

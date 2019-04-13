@@ -72,13 +72,41 @@ inline void decodeMessage()
 	}
 }
 
+void initSlave()
+{
+
+	// Setup Analog Input
+	// Sample Analog Input
+	// draw the rest of the owl 
+	/*
+	    /`\  ___  /`\
+        \d `"\:/"` b/
+        /`.--. ` .--.`\
+        |/ __ \ / __ \|
+        ( ((o) V (o)) )
+        |\`""`/^\`""`/|
+        \ `--'\ /'--` /
+        /`-._  `  _.-`\
+       / /.:.:.:.:.:.\ \
+      ; |.:.:.:.:.:.:.| ;
+      | |:.:.:.:.:.:.:| |
+      | |.:.:.:.:.:.:.| |
+      | |:.:.:.:.:.:.:| |
+      \/\.:.:.:.:.:.:./\/
+        _`).-.-:-.-.(`_
+    ,=^` |=  =| |=  =| `^=,
+   /jgs  \=/\=/ \=/\=/     \
+   */
+}
+
 // blink led once per second
 int main()
 {
-	configureSlave();
+	configureEncoder();
 	int bit = 0;
 	
-	//switch state every second
+	initSlave();
+
 	while(1)
 	{
 		_delay_ms(MAIN_LOOP_TIME_MS);
