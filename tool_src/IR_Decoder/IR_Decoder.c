@@ -5,7 +5,7 @@
 #include <avr/io.h>
 #endif
 
-#include "Slave.h"
+#include "IR_Decoder.h"
 
 #define PAUSE_COUNTER() TCCR0B = 0
 #define RESUME_COUNTER() TCCR0B = 5
