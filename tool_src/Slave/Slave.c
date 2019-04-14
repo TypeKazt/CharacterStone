@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "IR_Decoder.h"
+#include "IR_Encoder.h"
 #include "MessageCodes.h"
 
 #include <avr/io.h>
@@ -16,9 +17,6 @@
 
 #define LED_PIN 6
 #define CLK_PIN 7
-
-#define TRANSMIT_HIGH(PIN, PORT) PORT |= _BV(PIN)
-#define TRANSMIT_LOW(PIN, PORT) PORT &= ~(_BV(PIN))
 
 // This loses 2 lowest bits of precision, which is ok for our case. 
 #define SAMPLE_ADC(RESULT) RESULT = ADCH; RESULT << 2;  
@@ -85,17 +83,16 @@ void initSlave()
     ADCSRA |= _BV(7); // enable the ADC
     ADCSRA |= _BV(5); // auto trigger sample, also prescaler for clk input is 2 by default
 
-    uint16_t light_data[NUM_LIGHT_SAMPLES];
+    uint16_t light_data_min = 0xFFFF;
 
     uint8_t n = 0;
     for(; n < NUM_LIGHT_SAMPLES; ++n)
     {
         uint16_t sample = 0;
         SAMPLE_ADC(sample);
-        light_data[n] = sample;
+        light_data_min = sample < light_data_min ? sample : light_data_min;
     }
 
-    // Sample Analog Input
     // look at the state diagram layed out by me and...
     // draw the rest of the owl 
     /*
@@ -115,7 +112,7 @@ void initSlave()
       \/\.:.:.:.:.:.:./\/
         _`).-.-:-.-.(`_
     ,=^` |=  =| |=  =| `^=,
-   /jgs  \=/\=/ \=/\=/     \
+   /     \=/\=/ \=/\=/     \
    */
 }
 
