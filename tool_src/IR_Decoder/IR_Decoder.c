@@ -21,38 +21,38 @@ uint8_t _state = 2; // 2 == awaiting init bit, 1 == awaiting first bit, 0 >= tra
 
 void configureEncoder()
 {
-	// CLK I/0 on the mega is ~= 8MHz
-	// prescale clk for counter 0 by 1024 (7812.5 Hz)
-	// #TODO '5' should be macrofied
-	TCCR0B = 5;
-	TIMSK0 = 1; // set overflow flag for counter 0, use for testing
+    // CLK I/0 on the mega is ~= 8MHz
+    // prescale clk for counter 0 by 1024 (7812.5 Hz)
+    // #TODO '5' should be macrofied
+    TCCR0B = 5;
+    TIMSK0 = 1; // set overflow flag for counter 0, use for testing
 
 #if DEBUG >= 1
-	DDRB |= _BV(DDB7) | _BV(DDB6) | _BV(DDB5) | _BV(DDB4) | _BV(DDB2) | _BV(DDB1);
+    DDRB |= _BV(DDB7) | _BV(DDB6) | _BV(DDB5) | _BV(DDB4) | _BV(DDB2) | _BV(DDB1);
 #endif
 
-	DDRD = 0xFD; // set first pin to input
-	PORTD = 0x02; // enable pull up resistor
+    DDRD = 0xFD; // set first pin to input
+    PORTD = 0x02; // enable pull up resistor
 
-	EIMSK |= 1 << INT1; // enable external interrupt 1
-	EICRA |= 2 << 2; // configure external interrupt 1 for falling edge
+    EIMSK |= 1 << INT1; // enable external interrupt 1
+    EICRA |= 2 << 2; // configure external interrupt 1 for falling edge
 
-	sei(); // enable global interrupts
+    sei(); // enable global interrupts
 }
 
 void resetTransactions()
 {
-	_state = 2;
-	_bitCount = 0;
-	for(int i = 0; i < numBytes; ++i)
-	{
-		_data[i] = 0;
-	}
+    _state = 2;
+    _bitCount = 0;
+    for(int i = 0; i < numBytes; ++i)
+    {
+        _data[i] = 0;
+    }
 }
 
 uint8_t* receiveMessage()
 {
-	return _data;
+    return _data;
 }
 
 /*****************************************************
@@ -82,51 +82,51 @@ uint8_t* receiveMessage()
 ISR(INT1_vect)
 {
 #if DEBUG == 1
-	PORTB ^= _BV(4);
+    PORTB ^= _BV(4);
 #endif
-	if(_state <= 0)
-	{
-		uint8_t timerCounts = TCNT0; // count of first 8-bit counter
-		uint8_t byteIndex;
-		switch(timerCounts)
-		{
-			case ZERO_BIT_COUNTS-1: // '0' bit
-			case ZERO_BIT_COUNTS:
-			case ZERO_BIT_COUNTS+1:
-				RESET_COUNTER();
-				_data[getByteIndex(_bitCount)] <<= 1;
-				_bitCount++;
+    if(_state <= 0)
+    {
+        uint8_t timerCounts = TCNT0; // count of first 8-bit counter
+        uint8_t byteIndex;
+        switch(timerCounts)
+        {
+            case ZERO_BIT_COUNTS-1: // '0' bit
+            case ZERO_BIT_COUNTS:
+            case ZERO_BIT_COUNTS+1:
+                RESET_COUNTER();
+                _data[getByteIndex(_bitCount)] <<= 1;
+                _bitCount++;
 #if DEBUG == 1
-					PORTB ^= _BV(5);
+                    PORTB ^= _BV(5);
 #endif
-				break;	
-			case ONE_BIT_COUNTS-1: // '1' bit
-			case ONE_BIT_COUNTS:
-			case ONE_BIT_COUNTS+1:
-				RESET_COUNTER();
-				byteIndex = getByteIndex(_bitCount);
-				_data[byteIndex] <<= 1;
-				_data[byteIndex]+= 1;
-				_bitCount++;
+                break;	
+            case ONE_BIT_COUNTS-1: // '1' bit
+            case ONE_BIT_COUNTS:
+            case ONE_BIT_COUNTS+1:
+                RESET_COUNTER();
+                byteIndex = getByteIndex(_bitCount);
+                _data[byteIndex] <<= 1;
+                _data[byteIndex]+= 1;
+                _bitCount++;
 #if DEBUG == 1
-				PORTB ^= _BV(5);
+                PORTB ^= _BV(5);
 #endif
-				break;
-		}
-	}
-	else
-	{
-		--_state;
-	}
+                break;
+        }
+    }
+    else
+    {
+        --_state;
+    }
 
 EXIT:
 #if DEBUG == 1
-	PORTB &= ~(_BV(4));
+    PORTB &= ~(_BV(4));
 #endif
-	// RESET_COUNTER(); // temp move to change protocol for better?
+    // RESET_COUNTER(); // temp move to change protocol for better?
 }
 
 ISR(TIMER0_OVF_vect)
 {
-	resetTransactions();
+    resetTransactions();
 }
