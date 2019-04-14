@@ -119,7 +119,6 @@ ISR(INT1_vect)
         --_state;
     }
 
-EXIT:
 #if DEBUG == 1
     PORTB &= ~(_BV(4));
 #endif
