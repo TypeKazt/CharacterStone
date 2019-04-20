@@ -23,6 +23,7 @@ set(${Arduino_VARIANT} standard)
 include_directories("./IR_Decoder")
 include_directories("./Master")
 include_directories("./Slave")
+include_directories("./includes")
 include_directories("/usr/include/avr")
 
 avr_add_library(IRDecoder ./IR_Decoder/IR_Decoder.c)

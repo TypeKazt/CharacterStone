@@ -1,11 +1,13 @@
 #ifndef __IR_ENCODER__
 #define __IR_ENCODER__
 
-#define ENCODER_PORT
-#define ENCODER_PIN
+#define ENCODER_PORT PORTB
+#define ENCODER_PIN 5
 
-#define TRANSMIT_HIGH(PIN, PORT) PORT |= _BV(PIN)
-#define TRANSMIT_LOW(PIN, PORT) PORT &= ~(_BV(PIN))
+#define TRANSMIT_HIGH(PIN, PORT)\
+ PORT |= _BV(PIN)
+#define TRANSMIT_LOW(PIN, PORT)\
+ PORT &= ~(_BV(PIN))
 
 /*****************************************************
  * Description:

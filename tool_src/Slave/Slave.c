@@ -6,6 +6,7 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
+#include <avr/math.h>
 
 #define IR_PIN 0
 #define LIGHT_ANIN_PIN 0
@@ -18,8 +19,10 @@
 #define LED_PIN 6
 #define CLK_PIN 7
 
+#define MAX_BEACON_DELAY_MS 10.0
+
 // This loses 2 lowest bits of precision, which is ok for our case. 
-#define SAMPLE_ADC(RESULT) RESULT = ADCH; RESULT << 2;  
+#define SAMPLE_ADC(RESULT) RESULT = ADCH; RESULT <<= 2;  
 
 void replicateSignal(uint8_t* data)
 {
@@ -92,6 +95,11 @@ void initSlave()
         SAMPLE_ADC(sample);
         light_data_min = sample < light_data_min ? sample : light_data_min;
     }
+
+
+    // Use an exponential curve on luminosity to determine "random" delay time
+    _delay_ms(MAX_BEACON_DELAY_MS * exp(light_data_min/1024.0)); 
+
 
     // look at the state diagram layed out by me and...
     // draw the rest of the owl 
