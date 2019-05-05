@@ -6,7 +6,7 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
-#include <avr/math.h>
+#include <math.h>
 
 #define IR_PIN 0
 #define LIGHT_ANIN_PIN 0
@@ -19,7 +19,7 @@
 #define LED_PIN 6
 #define CLK_PIN 7
 
-#define MAX_BEACON_DELAY_MS 10.0
+#define MAX_BEACON_DELAY 5000000
 
 // This loses 2 lowest bits of precision, which is ok for our case. 
 #define SAMPLE_ADC(RESULT) RESULT = ADCH; RESULT <<= 2;  
@@ -31,10 +31,10 @@ void replicateSignal(uint8_t* data)
         for(uint8_t bitIndex = 0; bitIndex < 8; bitIndex++)
         {
             _delay_ms(1);
-            TRANSMIT(1, CLK_PIN);
-            TRANSMIT((data[byteIndex]&(1<<bitIndex)), LED_PIN);
+            TRANSMIT_HIGH(CLK_PIN, LED_PORT);
+            TRANSMIT((data[byteIndex]&(1<<bitIndex)), LED_PIN, LED_PORT);
             _delay_ms(1);
-            TRANSMIT(0, CLK_PIN);
+            TRANSMIT_LOW(CLK_PIN, LED_PORT);
         }
     }
 }
@@ -87,19 +87,33 @@ void initSlave()
     ADCSRA |= _BV(5); // auto trigger sample, also prescaler for clk input is 2 by default
 
     uint16_t light_data_min = 0xFFFF;
-
-    uint8_t n = 0;
-    for(; n < NUM_LIGHT_SAMPLES; ++n)
+random_wait:
+    for(uint8_t n = 0; n < NUM_LIGHT_SAMPLES; ++n)
     {
         uint16_t sample = 0;
         SAMPLE_ADC(sample);
         light_data_min = sample < light_data_min ? sample : light_data_min;
     }
 
-
     // Use an exponential curve on luminosity to determine "random" delay time
-    _delay_ms(MAX_BEACON_DELAY_MS * exp(light_data_min/1024.0)); 
+    for(int i = 0; i < (MAX_BEACON_DELAY * exp(light_data_min/1023)); i++)
+    {
+        if(i % 1000 == 0)
+        {
+            uint8_t* data = receiveMessage();
+            uint64_t message = 0;
+            for(int i = 0; i < numBytes; ++i)
+            {
+                message |= (uint64_t)(data[i] << 8*i);
+            } 
+            if(message != Empty)
+            {
+                goto random_wait;
+            }
+        }
+    }
 
+    // Send the Beacon Command
 
     // look at the state diagram layed out by me and...
     // draw the rest of the owl 

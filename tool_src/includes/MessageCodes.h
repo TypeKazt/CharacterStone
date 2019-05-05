@@ -3,11 +3,13 @@
 
 enum CharacterStoneMessages
 {
-      PingLed = 0xF00F0586
+      Empty = 0x0000000000000000
+    , PingLed
     , PingVibrator
     , PingSpeaker
     , HealthUp
     , HealthDown
+    , Beacon
 };
 
 #endif

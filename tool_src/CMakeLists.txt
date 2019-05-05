@@ -21,6 +21,7 @@ set(${Arduino_VARIANT} standard)
 
 #message(WARNING "TEST ${Arduino_INCLUDE_DIRS}")
 include_directories("./IR_Decoder")
+include_directories("./IR_Encoder")
 include_directories("./Master")
 include_directories("./Slave")
 include_directories("./includes")

@@ -1,6 +1,12 @@
 #ifndef __IR_ENCODER__
 #define __IR_ENCODER__
 
+#include "stdafx.h"
+
+#ifndef AVR_PLATFORM_OVERRIDE
+#define __AVR_ATmega2560__
+#endif 
+
 #define ENCODER_PORT PORTB
 #define ENCODER_PIN 5
 
@@ -8,6 +14,10 @@
  PORT |= _BV(PIN)
 #define TRANSMIT_LOW(PIN, PORT)\
  PORT &= ~(_BV(PIN))
+#define TRANSMIT(VAL, PIN, PORT)\
+if(VAL > 0)\
+    TRANSMIT_HIGH(PIN, PORT);\
+else TRANSMIT_LOW(PIN, PORT);
 
 /*****************************************************
  * Description:
