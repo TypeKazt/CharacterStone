@@ -28,9 +28,11 @@ include_directories("./includes")
 include_directories("/usr/include/avr")
 
 avr_add_library(IRDecoder ./IR_Decoder/IR_Decoder.c)
+avr_add_library(IREncoder ./IR_Encoder/IR_Encoder.c)
 
 avr_add_executable(SlaveMain ./Slave/Slave.c)
-#avr_add_executable(MasterMain ./Master/Main.c)
+avr_add_executable(MasterMain ./Master/Master.c)
 
 target_link_libraries(SlaveMain.elf IRDecoder)
+target_link_libraries(MasterMain.elf IREncoder)
 

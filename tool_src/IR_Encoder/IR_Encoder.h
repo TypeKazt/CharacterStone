@@ -19,6 +19,8 @@ if(VAL > 0)\
     TRANSMIT_HIGH(PIN, PORT);\
 else TRANSMIT_LOW(PIN, PORT);
 
+
+
 /*****************************************************
  * Description:
  *  Encodes a byte buffer into an infrared signal

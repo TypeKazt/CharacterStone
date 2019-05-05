@@ -1,4 +1,7 @@
 #include "stdafx.h"
+#ifndef AVR_PLATFORM_OVERRIDE
+#define __AVR_ATmega2560__
+#endif 
 
 #include <avr/interrupt.h>
 #if DEBUG == 1
@@ -19,7 +22,7 @@ uint8_t _bitCount = 0;
 uint8_t _state = 2; // 2 == awaiting init bit, 1 == awaiting first bit, 0 >= transaction
 
 
-void configureEncoder()
+void configureDecoder()
 {
     // CLK I/0 on the mega is ~= 8MHz
     // prescale clk for counter 0 by 1024 (7812.5 Hz)

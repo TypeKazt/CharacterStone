@@ -3,7 +3,18 @@
 #include "IR_Decoder.h"
 
 #include <avr/io.h>
+#include <avr/interrupt.h>
+#include <avr/delay.h>
 
+uint8_t ENCODER_PIN = 0;
+uint8_t ENCODER_PORT = 0;
+
+
+void setEncoderPortAndPin(uint8_t IR_PORT, uint8_t IR_PIN)
+{
+    ENCODER_PIN = IR_PIN;
+    ENCODER_PORT = IR_PORT;
+}
 
 
 /**
@@ -13,7 +24,8 @@
 
 void encodeData(uint8_t* data, uint8_t numBitsToSend)
 {
-    cei();
+    cei(); // disable global interrupts
+
     uint8_t dataIndex = 0;
     TRANSMIT_HIGH(ENCODER_PIN, ENCODER_PORT);
     _delay_ms(1);
@@ -44,4 +56,6 @@ void encodeData(uint8_t* data, uint8_t numBitsToSend)
     TRANSMIT_HIGH(ENCODER_PIN, ENCODER_PORT);
     _delay_ms(DEFAULT_WAIT_MS);
     TRANSMIT_LOW(ENCODER_PIN, ENCODER_PORT);
+
+    sei(); // enable global interrupts
 }
