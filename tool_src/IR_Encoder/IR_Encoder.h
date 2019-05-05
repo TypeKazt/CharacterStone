@@ -2,12 +2,14 @@
 #define __IR_ENCODER__
 
 #include "stdafx.h"
+#include "inttypes.h"
 
 #ifndef AVR_PLATFORM_OVERRIDE
 #define __AVR_ATmega2560__
 #endif 
 
 #define ENCODER_PORT PORTB
+#define ENCODER_PORT_DDR DDRB
 #define ENCODER_PIN 5
 
 #define TRANSMIT_HIGH(PIN, PORT)\
@@ -20,6 +22,8 @@ if(VAL > 0)\
 else TRANSMIT_LOW(PIN, PORT);
 
 
+
+extern void initEncoder();
 
 /*****************************************************
  * Description:

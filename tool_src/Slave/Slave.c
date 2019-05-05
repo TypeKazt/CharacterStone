@@ -114,6 +114,7 @@ random_wait:
     }
 
     // Send the Beacon Command
+    
 
     // look at the state diagram layed out by me and...
     // draw the rest of the owl 
@@ -141,7 +142,7 @@ random_wait:
 // blink led once per second
 int main()
 {
-    configureEncoder();
+    configureDecoder();
     int bit = 0;
     
     initSlave();

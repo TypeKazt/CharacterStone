@@ -3,19 +3,15 @@
 #include "IR_Decoder.h"
 
 #include <avr/io.h>
-#include <avr/interrupt.h>
 #include <avr/delay.h>
-
-uint8_t ENCODER_PIN = 0;
-uint8_t ENCODER_PORT = 0;
+#include <avr/interrupt.h>
 
 
-void setEncoderPortAndPin(uint8_t IR_PORT, uint8_t IR_PIN)
+
+void initEncoder()
 {
-    ENCODER_PIN = IR_PIN;
-    ENCODER_PORT = IR_PORT;
+    ENCODER_PORT_DDR |= _BV(ENCODER_PIN);
 }
-
 
 /**
  *  This method encodes a byte buffer into an
@@ -24,7 +20,7 @@ void setEncoderPortAndPin(uint8_t IR_PORT, uint8_t IR_PIN)
 
 void encodeData(uint8_t* data, uint8_t numBitsToSend)
 {
-    cei(); // disable global interrupts
+    cli(); // disable global interrupts
 
     uint8_t dataIndex = 0;
     TRANSMIT_HIGH(ENCODER_PIN, ENCODER_PORT);
@@ -34,7 +30,7 @@ void encodeData(uint8_t* data, uint8_t numBitsToSend)
         uint8_t bitsInByte = (8 > numBitsToSend ? numBitsToSend : 8);
         for(int i = 0; i < bitsInByte; ++i)
         {
-            if((1 << i)&data[i]) // if bit is 1
+            if((1 << i)&data[dataIndex]) // if bit is 1
             {
                 TRANSMIT_LOW(ENCODER_PIN, ENCODER_PORT);
                 _delay_ms(DEFAULT_WAIT_MS);
@@ -49,6 +45,7 @@ void encodeData(uint8_t* data, uint8_t numBitsToSend)
                 _delay_ms(ZERO_BIT_MS);
             }
         }
+        numBitsToSend -= 8;
         dataIndex++;
     }
     TRANSMIT_LOW(ENCODER_PIN, ENCODER_PORT);
