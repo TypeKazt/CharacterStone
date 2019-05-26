@@ -64,6 +64,6 @@ extern uint8_t _data[1+((uint8_t)TRANSACTION_LENGTH-1)/8];
 extern uint8_t numBytes;
 
 #define transactionFinished() _bitCount == TRANSACTION_LENGTH
-#define decodeData(result) for(int i = 0; i < numBytes; ++i){result |= ((uint64_t)_data[i]) << 8*i;}
+#define decodeData(result, data) for(int i = 0; i < numBytes; ++i){result |= data[numBytes-i]; result<< 8;}
 
 #endif

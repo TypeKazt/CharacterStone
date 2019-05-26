@@ -24,6 +24,9 @@
 // This loses 2 lowest bits of precision, which is ok for our case. 
 #define SAMPLE_ADC(RESULT) RESULT = ADCH; RESULT <<= 2;  
 
+uint8_t m_transmitBuffer[8];
+uint8_t m_slaveId = 0;
+
 void replicateSignal(uint8_t* data)
 {
     for(uint8_t byteIndex = 0; byteIndex < (TRANSACTION_LENGTH-1)/8 + 1; byteIndex++)
@@ -58,12 +61,8 @@ inline void decodeMessage()
 #if DEBUG >= 1
     replicateSignal(data);
 #endif
-    
-    for(int i = 0; i < numBytes; ++i)
-    {
-        message |= (uint64_t)(data[i] << 8*i);
-    }
 
+    decodeData(message, data);
     switch(message)
     {
         case PingLed:
@@ -88,7 +87,8 @@ void initSlave()
 
     uint16_t light_data_min = 0xFFFF;
 random_wait:
-    for(uint8_t n = 0; n < NUM_LIGHT_SAMPLES; ++n)
+    // Use the minimum ADC sample to seed the random wait
+    for(uint8_t n = 0; n < NUM_LIGHT_SAMPLES; ++n) 
     {
         uint16_t sample = 0;
         SAMPLE_ADC(sample);
@@ -102,10 +102,8 @@ random_wait:
         {
             uint8_t* data = receiveMessage();
             uint64_t message = 0;
-            for(int i = 0; i < numBytes; ++i)
-            {
-                message |= (uint64_t)(data[i] << 8*i);
-            } 
+
+            decodeData(message, data);
             if(message != Empty)
             {
                 goto random_wait;
@@ -114,9 +112,30 @@ random_wait:
     }
 
     // Send the Beacon Command
-    
+    int64ToByteBuffer(m_transmitBuffer, (int64_t)Beacon);
+    encodeData(m_transmitBuffer, TRANSACTION_LENGTH);
 
-    // look at the state diagram layed out by me and...
+    _delay_ms(20);
+
+    uint8_t* data = receiveMessage();
+    uint64_t message = 0;
+    decodeData(message, data);
+    if( (message & MESSAGE_MASK) != IdAssignment)
+    {
+        goto random_wait;
+    }
+    else
+    {
+        m_slaveId = message >> NUM_MESSAGE_BITS;
+    }
+
+    for(int i = 0; i < ACK_RETRIES; ++i)
+    {
+        int64ToByteBuffer(m_transmitBuffer, (int64_t)SlaveAck);
+        encodeData(m_transmitBuffer, TRANSACTION_LENGTH);
+        _delay_ms(1);
+    }
+    
     // draw the rest of the owl 
     /*
         /`\  ___  /`\

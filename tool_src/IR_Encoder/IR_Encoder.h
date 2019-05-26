@@ -21,6 +21,8 @@ if(VAL > 0)\
     TRANSMIT_HIGH(PIN, PORT);\
 else TRANSMIT_LOW(PIN, PORT);
 
+#define int64ToByteBuffer(result, input) for(int byteIndex = 0; byteIndex < 8; ++byteIndex){result[byteIndex] = input >> byteIndex*8;}
+
 
 
 extern void initEncoder();
