@@ -27,6 +27,7 @@
 uint8_t m_transmitBuffer[8];
 uint8_t m_slaveId = 0;
 
+#if DEBUG >= 1
 void replicateSignal(uint8_t* data)
 {
     for(uint8_t byteIndex = 0; byteIndex < (TRANSACTION_LENGTH-1)/8 + 1; byteIndex++)
@@ -41,6 +42,7 @@ void replicateSignal(uint8_t* data)
         }
     }
 }
+#endif
 
 inline void pingLed()
 {
@@ -115,7 +117,7 @@ random_wait:
     int64ToByteBuffer(m_transmitBuffer, (int64_t)Beacon);
     encodeData(m_transmitBuffer, TRANSACTION_LENGTH);
 
-    _delay_ms(20);
+    _delay_ms(40);
 
     uint8_t* data = receiveMessage();
     uint64_t message = 0;
@@ -131,7 +133,7 @@ random_wait:
 
     for(int i = 0; i < ACK_RETRIES; ++i)
     {
-        int64ToByteBuffer(m_transmitBuffer, (int64_t)SlaveAck);
+        int64ToByteBuffer(m_transmitBuffer, (uint64_t)(( (uint16_t)SlaveAck) | (((uint16_t)m_slaveId) << 8)) );
         encodeData(m_transmitBuffer, TRANSACTION_LENGTH);
         _delay_ms(1);
     }
@@ -162,6 +164,7 @@ random_wait:
 int main()
 {
     configureDecoder();
+    initEncoder();
     int bit = 0;
     
     initSlave();

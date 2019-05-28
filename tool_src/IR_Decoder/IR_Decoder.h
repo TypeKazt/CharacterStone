@@ -6,7 +6,7 @@
 
 //== Timer configuration
 
-extern void configureEncoder();
+extern void configureDecoder();
  
 
 //== NEC encoding/decoding
